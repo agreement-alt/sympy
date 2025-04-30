@@ -1,0 +1,58 @@
+import sympy as sp
+from sympy import oo, limit
+
+def find_asymptotes():
+    print("مرحباً! هذا البرنامج يحسب الخطوط المقاربة للدوال الكسرية")
+    print("الرجاء إدخال الدالة الكسرية بصيغة Python (مثال: (x**2 - 1)/(x - 1))")
+    print("استخدم x كمتغير فقط")
+    
+    # إدخال الدالة من المستخدم
+    expr_input = input("أدخل الدالة: ")
+    
+    try:
+        x = sp.symbols('x')
+        f = sp.sympify(expr_input)
+        
+        if not isinstance(f, sp.Expr):
+            raise ValueError
+        
+        # إيجاد المقاربات الرأسية
+        print("\n=== الخطوط المقاربة الرأسية ===")
+        denominator = f.as_numer_denom()[1]
+        vertical_asymptotes = sp.solve(denominator, x)
+        
+        if vertical_asymptotes:
+            for root in vertical_asymptotes:
+                # التحقق من عدم وجود ثقب (hole)
+                numerator = f.as_numer_denom()[0]
+                if numerator.subs(x, root) != 0:
+                    print(f"x = {root}")
+                else:
+                    print(f"ملاحظة: هناك ثقب عند x = {root} وليس مقارباً")
+        else:
+            print("لا توجد خطوط مقاربة رأسية")
+        
+        # إيجاد المقاربات الأفقية
+        print("\n=== الخطوط المقاربة الأفقية ===")
+        degree_num = sp.degree(f.as_numer_denom()[0], x)
+        degree_den = sp.degree(f.as_numer_denom()[1], x)
+        
+        if degree_num < degree_den:
+            print("y = 0")
+        elif degree_num == degree_den:
+            lead_coeff_num = sp.LC(f.as_numer_denom()[0])
+            lead_coeff_den = sp.LC(f.as_numer_denom()[1])
+            print(f"y = {lead_coeff_num / lead_coeff_den}")
+        else:
+            # إيجاد المقارب المائل إذا كانت درجة البسط أكبر بمقدار 1
+            if degree_num == degree_den + 1:
+                oblique_asymp = sp.expand(f.as_numer_denom()[0] / f.as_numer_denom()[1])
+                print(f"يوجد مقارب مائل: y = {oblique_asymp}")
+            else:
+                print("لا يوجد مقارب أفقي (درجة البسط > درجة المقام)")
+                
+    except Exception as e:
+        print(f"حدث خطأ: {e}. الرجاء التأكد من صيغة الدالة المدخلة")
+
+# تشغيل البرنامج
+find_asymptotes()
